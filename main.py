@@ -1,8 +1,10 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog, QListWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog, QListWidget, QSystemTrayIcon, QMenu
+from PySide6.QtGui import QIcon
 from SaveManager import SaveManager, SaveData
 from datetime import datetime
 from argon2 import PasswordHasher
+from NotificationService import NotificationService
 
 # Important:
 # You need to run the following command to generate the ui_form.py file
@@ -15,9 +17,15 @@ class Main(QMainWindow):
         self.ui = Ui_Main()
         self.ui.setupUi(self)
 
+        # Window icon
+        self.setWindowIcon(QIcon(":icons/resources/icons/brain-keyhole.svg"))
+
         self.save_manager = SaveManager()
 
         self.ph = PasswordHasher()
+
+        self.notification_service = NotificationService(app_name="Remember Your Passwords")
+        self.notification_service.start()
 
         self.refresh_password_list()
 
@@ -42,6 +50,27 @@ class Main(QMainWindow):
         # Confirm edit password button
         self.ui.editConfirmButton.clicked.connect(self.edit_password)
 
+        # Tray icon
+        self.tray_icon = QSystemTrayIcon(self)
+        if self.tray_icon.isSystemTrayAvailable():
+            self.tray_icon.setIcon(self.windowIcon())
+
+            self.tray_icon.activated.connect(lambda reason: (self.hide() if self.isVisible() else self.show()) if reason == QSystemTrayIcon.ActivationReason.Trigger else None)
+
+            #Context menu
+            self.tray_menu = QMenu()
+            self.action_show = self.tray_menu.addAction("Show/Hide")
+            self.action_quit = self.tray_menu.addAction("Quit")
+            self.action_show.triggered.connect(lambda : self.hide() if self.isVisible() else self.show())
+            self.action_quit.triggered.connect(sys.exit)
+
+            self.tray_icon.setContextMenu(self.tray_menu)
+            self.tray_icon.show()
+        else:
+            self.tray_icon = None
+
+        self._schedule_all_existing()
+        QApplication.instance().aboutToQuit.connect(self._shutdown_notifications)
 
     def show_add_password_page(self):
         self.ui.stackedWidget.setCurrentIndex(1)
@@ -98,6 +127,11 @@ class Main(QMainWindow):
                 QMessageBox.warning(self, "Error", "Password with this name already exists.")
                 return
             self.save_manager.add_password(name, password_data)
+            self.notification_service.schedule_for(
+                name=name,
+                reminder_type=password_data["reminder_type"],
+                reminder_time_hhmm=password_data["reminder_time"],
+            )
             self.refresh_password_list()
             self.show_main_page()
 
@@ -111,6 +145,7 @@ class Main(QMainWindow):
 
         if check == QMessageBox.StandardButton.Yes:
             self.save_manager.delete_password(name)
+            self.notification_service.unschedule(name)
             self.refresh_password_list()
 
 
@@ -212,6 +247,45 @@ class Main(QMainWindow):
 
         self.save_manager.add_password(name, password_data)
         self.show_password()
+
+        self.notification_service.schedule_for(
+            name=name,
+            reminder_type=password_data["reminder_type"],
+            reminder_time_hhmm=password_data["reminder_time"],
+        )
+
+    def _shutdown_notifications(self):
+        try:
+            if self.notification_service:
+                self.notification_service.stop()
+        except Exception:
+            pass
+
+
+    def _schedule_all_existing(self):
+        try:
+            for name in self.save_manager.list_passwords():
+                data = self.save_manager.get_password(name)
+                if not data:
+                    continue
+
+                reminder_type = (data.get("reminder_type") or "none").lower()
+                reminder_time = (data.get("reminder_time") or "").strip()
+
+                if reminder_type == "none":
+                    self.notification_service.unschedule(name)
+                    continue
+                if not reminder_time:
+                    continue
+
+                self.notification_service.schedule_for(
+                    name=name,
+                    reminder_type=reminder_type,
+                    reminder_time_hhmm=reminder_time,
+                )
+        except Exception:
+            pass
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

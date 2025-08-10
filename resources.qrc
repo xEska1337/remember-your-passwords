@@ -4,5 +4,6 @@
         <file>resources/icons/minus.svg</file>
         <file>resources/icons/gear.svg</file>
         <file>resources/icons/search.svg</file>
+        <file>resources/icons/brain-keyhole.svg</file>
     </qresource>
 </RCC>
