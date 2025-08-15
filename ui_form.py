@@ -15,11 +15,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
-    QLayout, QLineEdit, QListWidget, QListWidgetItem,
-    QMainWindow, QPlainTextEdit, QPushButton, QRadioButton,
-    QSizePolicy, QSpacerItem, QStackedWidget, QTabWidget,
-    QTimeEdit, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QHBoxLayout,
+    QLabel, QLayout, QLineEdit, QListWidget,
+    QListWidgetItem, QMainWindow, QPlainTextEdit, QPushButton,
+    QRadioButton, QSizePolicy, QSpacerItem, QStackedWidget,
+    QTabWidget, QTimeEdit, QVBoxLayout, QWidget)
 import resources_rc
 
 class Ui_Main(object):
@@ -284,6 +284,64 @@ class Ui_Main(object):
         self.gridLayout_2.addLayout(self.mainLayout, 0, 0, 1, 1)
 
         self.stackedWidget.addWidget(self.mainPage)
+        self.settingsPage = QWidget()
+        self.settingsPage.setObjectName(u"settingsPage")
+        self.verticalLayout_7 = QVBoxLayout(self.settingsPage)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.verticalLayout_3 = QVBoxLayout()
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.checkBoxAutostart = QCheckBox(self.settingsPage)
+        self.checkBoxAutostart.setObjectName(u"checkBoxAutostart")
+        self.checkBoxAutostart.setFont(font1)
+
+        self.verticalLayout_3.addWidget(self.checkBoxAutostart)
+
+        self.checkBoxTray = QCheckBox(self.settingsPage)
+        self.checkBoxTray.setObjectName(u"checkBoxTray")
+        self.checkBoxTray.setFont(font1)
+        self.checkBoxTray.setChecked(True)
+
+        self.verticalLayout_3.addWidget(self.checkBoxTray)
+
+        self.checkBoxStartMinimized = QCheckBox(self.settingsPage)
+        self.checkBoxStartMinimized.setObjectName(u"checkBoxStartMinimized")
+        self.checkBoxStartMinimized.setFont(font1)
+
+        self.verticalLayout_3.addWidget(self.checkBoxStartMinimized)
+
+
+        self.verticalLayout_7.addLayout(self.verticalLayout_3)
+
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_7.addItem(self.verticalSpacer_4)
+
+        self.retunSettingsButton = QPushButton(self.settingsPage)
+        self.retunSettingsButton.setObjectName(u"retunSettingsButton")
+        self.retunSettingsButton.setFont(font1)
+
+        self.verticalLayout_7.addWidget(self.retunSettingsButton)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label_3 = QLabel(self.settingsPage)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setFont(font1)
+
+        self.horizontalLayout.addWidget(self.label_3)
+
+        self.infoSettingsButton = QPushButton(self.settingsPage)
+        self.infoSettingsButton.setObjectName(u"infoSettingsButton")
+        sizePolicy1.setHeightForWidth(self.infoSettingsButton.sizePolicy().hasHeightForWidth())
+        self.infoSettingsButton.setSizePolicy(sizePolicy1)
+        self.infoSettingsButton.setFont(font1)
+
+        self.horizontalLayout.addWidget(self.infoSettingsButton)
+
+
+        self.verticalLayout_7.addLayout(self.horizontalLayout)
+
+        self.stackedWidget.addWidget(self.settingsPage)
         self.addPasswordPage = QWidget()
         self.addPasswordPage.setObjectName(u"addPasswordPage")
         self.gridLayout_3 = QGridLayout(self.addPasswordPage)
@@ -399,6 +457,15 @@ class Ui_Main(object):
         self.editReminderMonth.setText(QCoreApplication.translate("Main", u"Once a month", None))
         self.editConfirmButton.setText(QCoreApplication.translate("Main", u"Confirm", None))
         self.editCancelButton.setText(QCoreApplication.translate("Main", u"Cancel", None))
+#if QT_CONFIG(tooltip)
+        self.checkBoxAutostart.setToolTip(QCoreApplication.translate("Main", u"Requires admin privileges (Task Scheduler)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBoxAutostart.setText(QCoreApplication.translate("Main", u"Autostart on boot", None))
+        self.checkBoxTray.setText(QCoreApplication.translate("Main", u"Minimize to tray instead of closing", None))
+        self.checkBoxStartMinimized.setText(QCoreApplication.translate("Main", u"Start minimized", None))
+        self.retunSettingsButton.setText(QCoreApplication.translate("Main", u"Return", None))
+        self.label_3.setText(QCoreApplication.translate("Main", u"https://github.com/xEska1337/remember-your-passwords", None))
+        self.infoSettingsButton.setText(QCoreApplication.translate("Main", u"Info", None))
         self.addPasswordInput.setPlaceholderText(QCoreApplication.translate("Main", u"Password", None))
         self.addPasswordInputConfirm.setPlaceholderText(QCoreApplication.translate("Main", u"Confirm password", None))
         self.addPasswordHint.setPlaceholderText(QCoreApplication.translate("Main", u"Hint", None))

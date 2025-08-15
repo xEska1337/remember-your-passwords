@@ -1,10 +1,12 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog, QListWidget, QSystemTrayIcon, QMenu
-from PySide6.QtGui import QIcon
+import subprocess
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog, QSystemTrayIcon, QMenu
+from PySide6.QtGui import QIcon, QDesktopServices
 from SaveManager import SaveManager, SaveData
 from datetime import datetime
 from argon2 import PasswordHasher
 from NotificationService import NotificationService
+from Autostart import autostart_is_enabled
 
 # Important:
 # You need to run the following command to generate the ui_form.py file
@@ -23,6 +25,8 @@ class Main(QMainWindow):
         self.save_manager = SaveManager()
 
         self.ph = PasswordHasher()
+
+        self.settings = self.save_manager.settings
 
         self.notification_service = NotificationService(app_name="Remember Your Passwords")
         self.notification_service.start()
@@ -49,6 +53,18 @@ class Main(QMainWindow):
         self.ui.editCancelButton.clicked.connect(self.show_password)
         # Confirm edit password button
         self.ui.editConfirmButton.clicked.connect(self.edit_password)
+        # Setting button
+        self.ui.mainSettingButton.clicked.connect(self.show_settings)
+        # Return setting button
+        self.ui.retunSettingsButton.clicked.connect(self.show_main_page)
+        # Info button
+        self.ui.infoSettingsButton.clicked.connect(lambda : QDesktopServices.openUrl("https://github.com/xEska1337/remember-your-passwords"))
+        # Autostart checkbox
+        self.ui.checkBoxAutostart.stateChanged.connect(self._toggle_autostart)
+        # Tray checkbox
+        self.ui.checkBoxTray.stateChanged.connect(self._toggle_close_to_tray)
+        # Start minimized checkbox
+        self.ui.checkBoxStartMinimized.stateChanged.connect(self._toggle_start_minimized)
 
         # Tray icon
         self.tray_icon = QSystemTrayIcon(self)
@@ -73,7 +89,7 @@ class Main(QMainWindow):
         QApplication.instance().aboutToQuit.connect(self._shutdown_notifications)
 
     def show_add_password_page(self):
-        self.ui.stackedWidget.setCurrentIndex(1)
+        self.ui.stackedWidget.setCurrentIndex(2)
         self.ui.addPasswordInput.clear()
         self.ui.addPasswordInputConfirm.clear()
         self.ui.addPasswordHint.clear()
@@ -287,8 +303,80 @@ class Main(QMainWindow):
             pass
 
 
+    def show_settings(self):
+        self._sync_settings_ui()
+        self.ui.stackedWidget.setCurrentIndex(1)
+
+
+    def _sync_settings_ui(self):
+        autostart = self.settings.start_on_login
+        try:
+            autostart = autostart_is_enabled("remember-your-passwords")
+            if autostart != self.settings.start_on_login:
+                self.save_manager.update_settings(start_on_login=autostart)
+        except Exception:
+            pass
+
+        self.ui.checkBoxAutostart.blockSignals(True)
+        self.ui.checkBoxTray.blockSignals(True)
+        self.ui.checkBoxStartMinimized.blockSignals(True)
+
+        self.ui.checkBoxAutostart.setChecked(autostart)
+        self.ui.checkBoxTray.setChecked(self.settings.close_to_tray)
+        self.ui.checkBoxStartMinimized.setChecked(self.settings.start_minimized)
+
+        self.ui.checkBoxAutostart.blockSignals(False)
+        self.ui.checkBoxTray.blockSignals(False)
+        self.ui.checkBoxStartMinimized.blockSignals(False)
+
+
+    def _toggle_autostart(self):
+        is_currently_enabled = self.settings.start_on_login
+        action = "--disable" if is_currently_enabled else "--enable"
+
+        try:
+            process = subprocess.run(
+                [sys.executable, "Autostart.py", action, "remember-your-passwords"],
+                capture_output=True, text=True, check=False
+            )
+
+            if process.returncode == 0:
+                self.save_manager.update_settings(start_on_login=autostart_is_enabled("remember-your-passwords"))
+            else:
+                self._sync_settings_ui()
+        except Exception as e:
+            QMessageBox.critical(self, "Autostart Error", f"An unexpected error occurred: {e}")
+
+
+    def _toggle_close_to_tray(self):
+        if self.settings.close_to_tray:
+            self.save_manager.update_settings(close_to_tray=False)
+        else:
+            self.save_manager.update_settings(close_to_tray=True)
+
+
+    def _toggle_start_minimized(self):
+        if self.settings.start_minimized:
+            self.save_manager.update_settings(start_minimized=False)
+        else:
+            self.save_manager.update_settings(start_minimized=True)
+
+
+    def closeEvent(self, event):
+        if getattr(self.settings, "close_to_tray", True) and self.tray_icon and self.tray_icon.isVisible():
+            event.ignore()
+            self.hide()
+            try:
+                self.tray_icon.showMessage("Still running", "The app is minimized to the system tray.")
+            except Exception:
+                pass
+        else:
+            super().closeEvent(event)
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     widget = Main()
-    widget.show()
+    if not widget.settings.start_minimized:
+        widget.show()
     sys.exit(app.exec())
