@@ -9,6 +9,7 @@ from desktop_notifier import DesktopNotifier, DEFAULT_SOUND
 class NotificationService:
     def __init__(self, app_name: str = "Remember Your Passwords"):
         self._app_name = app_name
+        self._app_start_time = datetime.now()
 
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._loop_thread: Optional[Thread] = None
@@ -66,6 +67,10 @@ class NotificationService:
         if reminder_type == "none":
             return
 
+        if reminder_type == "after_start":
+            self._schedule_after_start(name, reminder_time_hhmm)
+            return
+
         try:
             next_dt = self._compute_next_run(reminder_type, reminder_time_hhmm, base=datetime.now())
         except Exception:
@@ -97,6 +102,33 @@ class NotificationService:
         with self._jobs_lock:
             self._jobs[name] = t
         t.start()
+
+    def _schedule_after_start(self, name: str, duration_hhmm: str) -> None:
+        try:
+            h, m = self._parse_hhmm(duration_hhmm)
+            target_time = self._app_start_time + timedelta(hours=h, minutes=m)
+
+            delay = (target_time - datetime.now()).total_seconds()
+
+            if delay <= 0:
+                return
+
+            def _fire_once():
+                if self._stopping.is_set():
+                    return
+                self.notify(
+                    title=f"Password Practice: {name}",
+                    message="Time to practice your password."
+                )
+
+            t = Timer(delay, _fire_once)
+            t.daemon = True
+            with self._jobs_lock:
+                self._jobs[name] = t
+            t.start()
+
+        except Exception:
+            pass
 
 
     def unschedule(self, name: str) -> None:

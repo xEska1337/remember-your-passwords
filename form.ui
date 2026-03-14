@@ -451,6 +451,18 @@
                </widget>
               </item>
               <item>
+               <widget class="QRadioButton" name="editReminderAfterStart">
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>After start</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QRadioButton" name="editReminderEveryday">
                 <property name="font">
                  <font>
@@ -712,6 +724,18 @@
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="addPasswordRadioButtonAfterStart">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>After start</string>
             </property>
            </widget>
           </item>

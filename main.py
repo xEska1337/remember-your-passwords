@@ -19,6 +19,11 @@ class Main(QMainWindow):
         self.ui = Ui_Main()
         self.ui.setupUi(self)
 
+        if sys.platform == "win32":
+            import ctypes
+            myappid = 'remember-your-passwords'
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
         # Window icon
         self.setWindowIcon(QIcon(":icons/resources/icons/brain-keyhole.svg"))
 
@@ -126,6 +131,8 @@ class Main(QMainWindow):
             reminder_type = "weekly"
         elif self.ui.addPasswordRadioButtonMonth.isChecked():
             reminder_type = "monthly"
+        elif self.ui.addPasswordRadioButtonAfterStart.isChecked():
+            reminder_type = "after_start"
 
         password_data: SaveData = {
             "password": self.ph.hash(password),
@@ -185,7 +192,9 @@ class Main(QMainWindow):
             dt = datetime.fromisoformat(password_data["last_attempt"])
             self.ui.lastAttemptLabel.setText("Last attempt: " + dt.strftime('%d %b %Y %H:%M:%S'))
 
-            if password_data["reminder_type"] != "none":
+            if password_data["reminder_type"] == "after_start":
+                self.ui.reminderLabel.setText("Reminder: " + str(password_data["reminder_type"]) + " after " + str(password_data["reminder_time"]))
+            elif password_data["reminder_type"] != "none":
                 self.ui.reminderLabel.setText("Reminder: " + str(password_data["reminder_type"]) + " at " + str(password_data["reminder_time"]))
             else:
                 self.ui.reminderLabel.setText("Reminder: none")
@@ -242,6 +251,8 @@ class Main(QMainWindow):
             self.ui.editReminderWeek.setChecked(True)
         elif password_data["reminder_type"] == "monthly":
             self.ui.editReminderMonth.setChecked(True)
+        elif password_data["reminder_type"] == "after_start":
+            self.ui.editReminderAfterStart.setChecked(True)
 
 
     def edit_password(self):
@@ -257,6 +268,8 @@ class Main(QMainWindow):
             reminder_type_edit = "weekly"
         elif self.ui.editReminderMonth.isChecked():
             reminder_type_edit = "monthly"
+        elif self.ui.editReminderAfterStart.isChecked():
+            reminder_type_edit = "after_start"
 
         password_data["reminder_type"] = reminder_type_edit
         password_data["reminder_time"] = self.ui.editTime.time().toString("HH:mm")

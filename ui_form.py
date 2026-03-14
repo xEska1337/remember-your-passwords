@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'form.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -244,6 +244,12 @@ class Ui_Main(object):
 
         self.verticalLayout_2.addWidget(self.editReminderNoReminders)
 
+        self.editReminderAfterStart = QRadioButton(self.editPageRightColumn)
+        self.editReminderAfterStart.setObjectName(u"editReminderAfterStart")
+        self.editReminderAfterStart.setFont(font1)
+
+        self.verticalLayout_2.addWidget(self.editReminderAfterStart)
+
         self.editReminderEveryday = QRadioButton(self.editPageRightColumn)
         self.editReminderEveryday.setObjectName(u"editReminderEveryday")
         self.editReminderEveryday.setFont(font1)
@@ -389,6 +395,12 @@ class Ui_Main(object):
 
         self.verticalLayout.addWidget(self.addPasswordRadioButtonNoReminders)
 
+        self.addPasswordRadioButtonAfterStart = QRadioButton(self.addPasswordPage)
+        self.addPasswordRadioButtonAfterStart.setObjectName(u"addPasswordRadioButtonAfterStart")
+        self.addPasswordRadioButtonAfterStart.setFont(font1)
+
+        self.verticalLayout.addWidget(self.addPasswordRadioButtonAfterStart)
+
         self.addPasswordRadioButtonEveryday = QRadioButton(self.addPasswordPage)
         self.addPasswordRadioButtonEveryday.setObjectName(u"addPasswordRadioButtonEveryday")
         self.addPasswordRadioButtonEveryday.setFont(font1)
@@ -452,6 +464,7 @@ class Ui_Main(object):
         self.currentPasswordSettingsButton.setText("")
         self.label.setText(QCoreApplication.translate("Main", u"Select or add password", None))
         self.editReminderNoReminders.setText(QCoreApplication.translate("Main", u"No reminders", None))
+        self.editReminderAfterStart.setText(QCoreApplication.translate("Main", u"After start", None))
         self.editReminderEveryday.setText(QCoreApplication.translate("Main", u"Everyday", None))
         self.editReminderWeek.setText(QCoreApplication.translate("Main", u"Once a week", None))
         self.editReminderMonth.setText(QCoreApplication.translate("Main", u"Once a month", None))
@@ -471,6 +484,7 @@ class Ui_Main(object):
         self.addPasswordHint.setPlaceholderText(QCoreApplication.translate("Main", u"Hint", None))
         self.label_2.setText(QCoreApplication.translate("Main", u"Reminder", None))
         self.addPasswordRadioButtonNoReminders.setText(QCoreApplication.translate("Main", u"No reminders", None))
+        self.addPasswordRadioButtonAfterStart.setText(QCoreApplication.translate("Main", u"After start", None))
         self.addPasswordRadioButtonEveryday.setText(QCoreApplication.translate("Main", u"Everyday", None))
         self.addPasswordRadioButtonWeek.setText(QCoreApplication.translate("Main", u"Once a week", None))
         self.addPasswordRadioButtonMonth.setText(QCoreApplication.translate("Main", u"Once a month", None))
