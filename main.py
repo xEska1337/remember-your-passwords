@@ -52,6 +52,7 @@ class Main(QMainWindow):
         self.ui.hintButton.clicked.connect(self.show_hint)
         # Submit password button
         self.ui.submitPasswordButton.clicked.connect(self.check_password)
+        self.ui.passwordEnter.returnPressed.connect(self.check_password)
         # Edit password button
         self.ui.currentPasswordSettingsButton.clicked.connect(self.show_edit_page)
         # Cancel edit password button
@@ -175,7 +176,8 @@ class Main(QMainWindow):
     def show_password(self):
         if not self.ui.passwordsList.currentItem():
             return
-
+        
+        self.ui.passwordEnter.clear()
         self.ui.rightColumn.setCurrentIndex(0)
 
         name = self.ui.passwordsList.currentItem().text()
